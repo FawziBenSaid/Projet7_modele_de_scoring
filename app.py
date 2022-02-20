@@ -3,8 +3,16 @@ import json
 
 
 # load the pickle model
-import joblib
-model= joblib.load('model.pkl')
+import os
+import pickle
+my_dir = os.path.dirname('model.pkl')
+pickle_file_path = os.path.join(my_dir, 'model.pkl')
+with open(pickle_file_path, 'rb') as pickle_file:
+    model = pickle.load(pickle_file)
+    
+#import joblib
+#model= joblib.load('model.pkl')
+
 
 
 
