@@ -10,8 +10,7 @@ pickle_file_path = os.path.join(my_dir, 'model.pkl')
 with open(pickle_file_path, 'rb') as pickle_file:
     model = pickle.load(pickle_file)
     
-#import joblib
-#model= joblib.load('model.pkl')
+
 
 
 
