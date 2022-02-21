@@ -269,7 +269,8 @@ if page == 'Prédiction':
 
     # Fonction pour predire la legibilité du client
     def get_model_predictions(input):
-        mdl_url = 'http://127.0.0.1:5000/predict'
+        #mdl_url = 'http://127.0.0.1:5000/predict'
+        mdl_url = 'http://fawzibensaid.pythonanywhere.com/predict'
         data_json = {'data': input}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         prediction = requests.post(mdl_url, json=data_json, headers=headers)
