@@ -15,6 +15,7 @@ import shap
 
 
 
+
 # Telecharger le Data x_test
 @st.cache(allow_output_mutation=True)
 def load_df():
@@ -119,8 +120,8 @@ col2.image(background, use_column_width=True, caption = 'prêt à dépenser')
 # titre et description
 title =  '<p style="font-family:Cormorant; color:#69b3f2;text-align: center; font-size: 42px;">Bienvenue au dashboard "Prêt à dépenser"</p>'
 st.markdown(title, unsafe_allow_html=True)
-st.markdown('La mission principale de ce projet est de prédire le risque de faillite d un client pour une société de crédit.'
-    'Pour cela, on a créé ce Dashboard pour faciliter l interpretation de classification de chaque client')
+st.write('---')
+
 #st.success('Veuillez choisir une page dans la liste de navigation dans le SideBar')
 
 
@@ -131,36 +132,48 @@ st.markdown('La mission principale de ce projet est de prédire le risque de fai
 
 
 with st.sidebar.container():
-    page = st.sidebar.selectbox('Page navigation', ['Veuillez choisir :','Accuiel', 'Exploration des données','Prédiction'])
+    page = st.sidebar.selectbox('Veuillez choisir une page', ['Veuillez choisir :','Accuiel', 'Exploration des données','Prédiction'])
 
 
 
 if page == 'Accuiel':
 
-    if st.checkbox('Show dataframe'):
+    st.info('La mission principale de ce projet est de prédire le risque de faillite d\'un client pour une société de crédit.'
+        ' '
+        ' Pour cela, on a créé ce Dashboard pour faciliter l\'interpretation de classification de chaque client')
+
+    st.markdown('Les clients sont de plus en plus demandeurs de transparences vis-à-vis aux décisions,'
+                 'Grace à cet outil le chargé de relation client peut expliquer la décision et les facteurs qui ont conduit à la prendre.')
+
+    st.write(' - Pour afficher la liste des clients et leurs données, veuillez appuyer sur le bouton ci-dessous.')
+
+    if st.checkbox('Afficher le tableau de donnée'):
         st.write(df)
 
 
-
+st.sidebar.write('---')
 
 if page == 'Exploration des données':
-    st.write('Dans cette page, on va explorer les données des clients en utilisant des graphiques.')
+
+    st.info('Dans cette page, on va explorer les données des clients ')
+
+    st.write('Veuillez commencer par afficher le SHAP PLot.')
     st.write('')
-    st.write('')
-    st.subheader('shap.summary_plot')
-    st.write("Le graphique shap.summary_plot est conçu pour afficher "
-             "les principales features d'un jeu de données qui ont un impact sur le résultat du modèle")
+    #st.subheader('shap.summary_plot')
 
     # afficher les features les plus importants avec le shap_value
     if st.checkbox('afficher shap plot'):
+        st.write('')
+        st.write("Le graphique shap.summary_plot est conçu pour afficher "
+                 "les principales features d'un jeu de données qui ont un impact sur le résultat du modèle")
         #import copy
         #cloned_output = copy.deepcopy(shap_value(df))
         shap_value(df)
 
 
 
-        st.write("Dans le graphique ci-dessous, on a choisi d'afficher les dix features les plus importants dans notre modèle"
-                 "vous trouvez la liste des features ci-dessous")
+        st.write("Le graphique Shap Plot nous a permis de trouver les dix features les plus importants qui impactent notre modèle."
+                 " Vous trouvez la liste des features ci-dessous")
         st.info('DAYS_BIRTH,  CODE_GENDER,  DAYS_ID_PUBLISH,  FLAG_OWN_CAR, NAME_EDUCATION_TYPE_Secondary / secondary special,'
                  'NAME_EDUCATION_TYPE_Higher education, FLAG_DOCUMENT_3, REGION_RATING_CLIENT_W_CITY, NAME_CONTRACT_TYPE, REGION_RATING_CLIENT')
 
@@ -168,14 +181,14 @@ if page == 'Exploration des données':
     # Créer trois bouton univariée bivariée multivariée
     col1, col2, col3 = st.columns([1, 1, 1])
 
-
+    st.write('')
 
     with col1:
         btn_univariee=st.button('Analyse univariée')
     with col2:
         btn_bivariee=st.button('Analyse bivariée')
     with col3:
-        btn_miltivariee=st.button('multivariée')
+        btn_miltivariee=st.button('Analyse multivariée')
 
 
 
@@ -218,8 +231,8 @@ if page == 'Exploration des données':
                                        'FLAG_DOCUMENT_3', 'REGION_RATING_CLIENT_W_CITY', 'NAME_CONTRACT_TYPE',
                                        'REGION_RATING_CLIENT'])
         if len(bichoice) == 2:
-            st.write("la premiere colonne choisi est : ", bichoice[0])
-            st.write("la deuxieme colonne choisi est : ", bichoice[1])
+            st.write("La premiere colonne choisi est : ", bichoice[0])
+            st.write("La deuxième colonne choisi est : ", bichoice[1])
 
             fig2 = px.bar(df, x=bichoice[0], y=bichoice[1], width=800, height=400)
             barplot_chart = st.write(fig2)
@@ -238,13 +251,13 @@ if page == 'Exploration des données':
     if btn_miltivariee or st.session_state.btn_multivariee_clicked:
         st.session_state.btn_multivariee_clicked = True
 
-        multi_choice = st.multiselect("Selectionnez Deux colonnes ou plus: ",
+        multi_choice = st.multiselect("La liste des colonnes ",
                                       ['DAYS_BIRTH', 'CODE_GENDER', 'DAYS_ID_PUBLISH', 'FLAG_OWN_CAR',
                                        'NAME_EDUCATION_TYPE_Secondary / secondary special',
                                        'NAME_EDUCATION_TYPE_Higher education',
                                        'FLAG_DOCUMENT_3', 'REGION_RATING_CLIENT_W_CITY', 'NAME_CONTRACT_TYPE',
                                        'REGION_RATING_CLIENT'])
-        st.write("Veuillez choisir au minimum deux colonnes")
+        st.write("Veuillez choisir au moins deux colonnes")
         if st.checkbox("Afficher la matrice de correlation"):
             # Creer un nouveau tableau qui contient une seulle colonne et on va ajouter les colonnes selectionner
             data_corela = pd.DataFrame(np.random.randint(0, 1000, size=(1000, 1)), columns=list('A'))
@@ -265,12 +278,14 @@ if page == 'Exploration des données':
 
 
 if page == 'Prédiction':
-    st.write("Dans cette page, on va prédire la lisibilité des clients, et comprendre le choix grâce au graphique ci-dessous.")
+    st.info("Dans cette page, on va prédire L'éligibilité des clients.")
+    st.write('')
+    st.write('')
+    st.write('Pour commencer Veuillez choisir un identifiant de client dans le Sidebar')
 
     # Fonction pour predire la legibilité du client
     def get_model_predictions(input):
-        #mdl_url = 'http://127.0.0.1:5000/predict'
-        mdl_url = 'http://fawzibensaid.pythonanywhere.com/predict'
+        mdl_url = 'http://127.0.0.1:5000/predict'
         data_json = {'data': input}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         prediction = requests.post(mdl_url, json=data_json, headers=headers)
@@ -281,25 +296,29 @@ if page == 'Prédiction':
 
 
     # chercher l'dentifiant client
-    identifiant = st.sidebar.selectbox('Choisi un ID client:', df.astype('int32'))
-    st.write(identifiant)
+    identifiant = st.sidebar.selectbox('Choisissez un ID client:', df.astype('int32'))
+    #st.write(identifiant)
 
-    btn_pred = st.button("Predict")
+    btn_pred2 = st.button("Predict")
     # créer un tableau qui contient que la ligne de client selectionné
-    client_row = df.index[df['SK_ID_CURR'] == identifiant].tolist()
-    client_row = df[df['SK_ID_CURR'] == identifiant]
+    #client_row = df.index[df['SK_ID_CURR'] == identifiant].tolist()
+    #client_row = df[df['SK_ID_CURR'] == identifiant]
 
 
 
 
-    if btn_pred:
+    if 'btn_pred2_clicked' not in st.session_state:
+        st.session_state.btn_pred2_clicked = False
+
+    if btn_pred2 or st.session_state.btn_pred2_clicked:
+        st.session_state.btn_pred2_clicked = True
         # On récupère les résultats via l'API
         cli_json = json.loads(df[df['SK_ID_CURR'] == identifiant].to_json(orient='records'))[0]
         results_api = get_model_predictions(cli_json)
 
 
-        st.write(f"la prediction de client qui a l'id: {identifiant} est:  {results_api['Prediction'][0]} " )
-        st.write('Pour rappel 0 est solvable et 1 n est pas solvable ')
+        st.write(f"La prediction de client qui a l'id: {identifiant} est:  {results_api['Prediction'][0]} " )
+
 
         #Client sovable
         if results_api['Prediction'][0] == 0:
@@ -313,44 +332,60 @@ if page == 'Prédiction':
             # error
             st.error("Ce client n'est pas solvable")
 
+        st.write(' - Pour rappel 0 est solvable et 1 n est pas solvable ')
+        st.write('')
+        st.write('')
+        st.write('')
+
+        st.write("Veuillez choisir deux colonnes comme axes de graphique scatter plot pour afficher le client dans"
+                  "l'ensemble des clients")
+
 
         # Scatter  plot pour afficher le client choisi dans l'ensemble des clients
-        client_data = df[df['SK_ID_CURR'] == identifiant]
-        fig = plt.figure(figsize = (10, 8))
-        ax = plt.gca()
-        ax.scatter(df['DAYS_ID_PUBLISH'], df['DAYS_BIRTH'], color="r", alpha=0.2)
-        ax.scatter(client_data['DAYS_ID_PUBLISH'], client_data['DAYS_BIRTH'], color="b",s=60)
-        plt.xlabel('DAYS_ID_PUBLISH')
-        plt.ylabel('DAYS_BIRTH')
-        plt.title('Les clients de la banque')
-        st.pyplot(fig)
+
+        scater_graph = st.multiselect("La liste des colonnes: ",
+                                  ['DAYS_BIRTH','DAYS_ID_PUBLISH', 'CODE_GENDER', 'FLAG_OWN_CAR',
+                                   'NAME_EDUCATION_TYPE_Secondary / secondary special',
+                                   'NAME_EDUCATION_TYPE_Higher education',
+                                   'FLAG_DOCUMENT_3', 'REGION_RATING_CLIENT_W_CITY', 'NAME_CONTRACT_TYPE',
+                                   'REGION_RATING_CLIENT'])
+        if len(scater_graph) == 2:
+            st.write("la premiere colonne choisi est : ", scater_graph[0])
+            st.write("la deuxieme colonne choisi est : ", scater_graph[1])
+
+
+            client_data = df[df['SK_ID_CURR'] == identifiant]
+            fig = plt.figure(figsize=(10, 8))
+            ax = plt.gca()
+            ax.scatter(df[scater_graph[0]], df[scater_graph[1]], color="r", alpha=0.2)
+            ax.scatter(client_data[scater_graph[0]], client_data[scater_graph[1]], color="b", s=60)
+            plt.xlabel(scater_graph[0])
+            plt.ylabel(scater_graph[1])
+            plt.title('Les clients de la banque')
+            st.pyplot(fig)
+        else:
+            st.write("Veuillez selectionner deux colonnes")
 
 
     # Créer deux bouton pour afficher le tableau et le forceplot de chaque client
     left, right = st.columns(2)
 
     with left:
-        btn_left=st.button('afficher le Force Plot')
+        btn_left=st.button('Afficher le Force Plot')
     with right:
         btn_right=st.button('Afficher les données du client')
 
 
     if btn_left:
+        force_plot([df.index[df['SK_ID_CURR'] == identifiant].tolist()][0])
+        
         st.write("Une valeur élevée signifie que la probabilité d'une évaluation négative est plus grande."
-                 "Ainsi, dans les graphiques ci-dessous, les caractéristiques rouges contribuent en fait à augmenter les chances d'une évaluation positive,"
-                 " tandis que les caractéristiques négatives diminuent ces chances."
+                 "Ainsi, dans les graphiques ci-dessous, les caractéristiques rouges contribuent en fait à augmenter "
+                 "les chances d'une évaluation positive, tandis que les caractéristiques négatives diminuent ces chances."
+                 " "
                  "Rappelez-vous que les valeurs des caractéristiques sont des valeurs TF-IDF.")
 
-        force_plot([df.index[df['SK_ID_CURR'] == identifiant].tolist()][0])
+
 
     if btn_right:
         shap_table(df.index[df['SK_ID_CURR'] == identifiant].tolist()[0])
-
-
-
-
-
-
-
-
-
