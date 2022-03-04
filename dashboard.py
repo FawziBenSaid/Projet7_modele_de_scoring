@@ -19,12 +19,13 @@ import shap
 # Telecharger le Data x_test
 @st.cache(allow_output_mutation=True)
 def load_df():
-    df = pd.read_csv('client_list.csv')
+    df = pd.read_csv('client_list3.csv')
     return df
 
 df = load_df()
+df3 = df
 df = df.select_dtypes(include=np.number)
-df = df.drop(df.columns[0], axis=1)
+df = df.drop(df.columns[[0, -1]], axis=1)
 
 # Supprimer les 0 de la colonne 'SK_ID_CURR'
 lst = []
@@ -35,22 +36,20 @@ for each in df['SK_ID_CURR']:
 df['SK_ID_CURR'] = [int(i) for i in lst]
 
 
-# Telecharger le Data x_test
-@st.cache
-def load_df1():
-    df1 = pd.read_csv('client_list1.csv')
-    return df1
+# Creer un tableau qui est une copie du premier tableau mais avec la colonne target
+df3 = df3.select_dtypes(include=np.number)
+df3 = df3.drop(df3.columns[0], axis=1)
+# Supprimer les 0 de la colonne 'SK_ID_CURR'
+lst = []
+for each in df3['SK_ID_CURR']:
+    lst.append(str(each).split('.')[0])
 
-df1 = load_df1()
-df1 = df1.select_dtypes(include=np.number)
+# all values converting to integer data type
+df3['SK_ID_CURR'] = [int(i) for i in lst]
 
 
-# Telecharger le Data x_test
-@st.cache
-def load_df2():
-    df2 = pd.read_csv('client_list_original_data.csv')
-    return df2
-df2 = load_df2()
+
+
 
 # telechager l'algorithme
 @st.cache
@@ -102,7 +101,7 @@ def force_plot (index):
 
 
 # Fonction pour Créer un graphique shap summary
-def shap_value(data):
+def shap_summary(data):
     explainer = creat_explainer(model, df)
     shap_values = creat_shap_values(df)
     shap.summary_plot(shap_values, data)
@@ -122,9 +121,6 @@ title =  '<p style="font-family:Cormorant; color:#69b3f2;text-align: center; fon
 st.markdown(title, unsafe_allow_html=True)
 st.write('---')
 
-#st.success('Veuillez choisir une page dans la liste de navigation dans le SideBar')
-
-
 
 
 
@@ -140,7 +136,7 @@ if page == 'Accuiel':
 
     st.info('La mission principale de ce projet est de prédire le risque de faillite d\'un client pour une société de crédit.'
         ' '
-        ' Pour cela, on a créé ce Dashboard pour faciliter l\'interpretation de classification de chaque client')
+        ' Pour cela, on a créé ce Dashboard pour faciliter l\'interprétation de classification de chaque client')
 
     st.markdown('Les clients sont de plus en plus demandeurs de transparences vis-à-vis aux décisions,'
                  'Grace à cet outil le chargé de relation client peut expliquer la décision et les facteurs qui ont conduit à la prendre.')
@@ -148,7 +144,8 @@ if page == 'Accuiel':
     st.write(' - Pour afficher la liste des clients et leurs données, veuillez appuyer sur le bouton ci-dessous.')
 
     if st.checkbox('Afficher le tableau de donnée'):
-        st.write(df)
+        #st.write(df)
+        st.write(df3)
 
 
 st.sidebar.write('---')
@@ -166,9 +163,7 @@ if page == 'Exploration des données':
         st.write('')
         st.write("Le graphique shap.summary_plot est conçu pour afficher "
                  "les principales features d'un jeu de données qui ont un impact sur le résultat du modèle")
-        #import copy
-        #cloned_output = copy.deepcopy(shap_value(df))
-        shap_value(df)
+        shap_summary(df)
 
 
 
@@ -176,6 +171,8 @@ if page == 'Exploration des données':
                  " Vous trouvez la liste des features ci-dessous")
         st.info('DAYS_BIRTH,  CODE_GENDER,  DAYS_ID_PUBLISH,  FLAG_OWN_CAR, NAME_EDUCATION_TYPE_Secondary / secondary special,'
                  'NAME_EDUCATION_TYPE_Higher education, FLAG_DOCUMENT_3, REGION_RATING_CLIENT_W_CITY, NAME_CONTRACT_TYPE, REGION_RATING_CLIENT')
+
+
 
 
     # Créer trois bouton univariée bivariée multivariée
@@ -234,7 +231,7 @@ if page == 'Exploration des données':
             st.write("La premiere colonne choisi est : ", bichoice[0])
             st.write("La deuxième colonne choisi est : ", bichoice[1])
 
-            fig2 = px.bar(df, x=bichoice[0], y=bichoice[1], width=800, height=400)
+            fig2 = px.bar(df3, x=bichoice[0], y=bichoice[1],color="TARGET" ,width=800, height=400)
             barplot_chart = st.write(fig2)
 
 
@@ -285,8 +282,7 @@ if page == 'Prédiction':
 
     # Fonction pour predire la legibilité du client
     def get_model_predictions(input):
-        #mdl_url = 'http://127.0.0.1:5000/predict'
-        mdl_url = ' https://fawzibensaid.pythonanywhere.com/predict'
+        mdl_url = 'http://127.0.0.1:5000/predict'
         data_json = {'data': input}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         prediction = requests.post(mdl_url, json=data_json, headers=headers)
@@ -379,7 +375,7 @@ if page == 'Prédiction':
 
     if btn_left:
         force_plot([df.index[df['SK_ID_CURR'] == identifiant].tolist()][0])
-        
+
         st.write("Une valeur élevée signifie que la probabilité d'une évaluation négative est plus grande."
                  "Ainsi, dans les graphiques ci-dessous, les caractéristiques rouges contribuent en fait à augmenter "
                  "les chances d'une évaluation positive, tandis que les caractéristiques négatives diminuent ces chances."
