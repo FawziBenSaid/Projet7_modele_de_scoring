@@ -1,0 +1,9 @@
+
+
+La liste des liens de projet P7 de formation Data scientisit:
+
+Lien Dashboard: https://share.streamlit.io/fawzibensaid/projet7_modele_de_scoring/dashboard.py
+
+Lien API : https://www.pythonanywhere.com/user/FawziBenSaid/
+
+Lien GitHib : https://github.com/FawziBenSaid/Projet7_modele_de_scoring  
